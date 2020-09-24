@@ -1,7 +1,7 @@
 print("Authentication handler is loading ...")
 config = luaconfig.loadConfig();
-data = require 'data'
 np = require '9p'
+data = require 'data'
 socket = require 'socket'
 pprint = require 'pprint'
 readdir = require 'readdir'
