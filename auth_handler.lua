@@ -63,7 +63,6 @@ minetest.register_authentication_handler(
 
 minetest.register_on_leaveplayer(function(ObjectRef, timed_out)
     local name = ObjectRef:get_player_name()
-    authenticated = false
     cache[name] = {}
 end)
 
