@@ -3,14 +3,15 @@ mount_signer = function(signer)
     local newuser = config.newuser_addr
     local mount = config.smount
     write_file(path, "mount -A " .. newuser .. " " .. mount)
-    local result = read_file("/tmp/file2chan/cmd")
+    local result = read_file(lcmd)
     return result
 end
 
 read_file = function(path)
     local local_addr = config.local_addr
+    local port = config.local_addr_port
     local tcp = socket:tcp()
-    local connection, err = tcp:connect(local_addr, 1917)
+    local connection, err = tcp:connect(local_addr, port)
     if (err ~= nil) then
         print("dump of error newest .. " .. dump(err))
         print("Connection error")
@@ -40,8 +41,9 @@ end
 
 write_file = function(path, content)
     local local_addr = config.local_addr
+    local port = config.local_addr_port
     local tcp = socket:tcp()
-    local connection, err = tcp:connect(local_addr, 1917)
+    local connection, err = tcp:connect(local_addr, port)
     if (err ~= nil) then
         print("dump of error newest .. " .. dump(err))
         print("Connection error")
@@ -63,8 +65,9 @@ end
 
 create_file = function(parent_path, filename)
     local local_addr = config.local_addr
+    local port = config.local_addr_port
     local tcp = socket:tcp()
-    local connection, err = tcp:connect(local_addr, 1917)
+    local connection, err = tcp:connect(local_addr, port)
     if (err ~= nil) then
         print("dump of error newest .. " .. dump(err))
         print("Connection error")
