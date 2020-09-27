@@ -17,9 +17,8 @@ minetest.register_authentication_handler(
 
             local response = getauthinfo(lcmd, signer, name, password)
             if response == nil or not string.match(response, "Auth ok") then
-                -- global_pass = nil
                 return {
-                    password = "NON VALID PASS",
+                    password = "",
                     privileges = {},
                     last_login = -1
                 }
