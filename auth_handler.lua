@@ -1,10 +1,10 @@
-global_pass = nil
 minetest.register_on_authplayer(function(name, ip, is_success) end)
 minetest.register_authentication_handler(
     {
         get_auth = function(name, password)
-            if password == "getPlayerEffectivePrivs" or password == "SendPlayerPrivileges" then
-                password = global_pass
+            if password == "" then
+                local privs = get_privs(rcmd, name)
+                return {password = password, privileges = privs, last_login = -1}
             end
             local signer = config.signer_addr
             local lcmd = config.lcmd
@@ -15,10 +15,9 @@ minetest.register_authentication_handler(
             local exists = read_file(rcmd)
             if string.match(exists, "does not exist") then return nil end
 
-    
             local response = getauthinfo(lcmd, signer, name, password)
             if response == nil or not string.match(response, "Auth ok") then
-                global_pass = nil
+                -- global_pass = nil
                 return {
                     password = "NON VALID PASS",
                     privileges = {},
@@ -28,7 +27,6 @@ minetest.register_authentication_handler(
             local privs = {}
             if string.match(response, "Auth ok") then
                 privs = get_privs(rcmd, name)
-                global_pass = password
             end
             local player = {
                 password = password,
@@ -52,7 +50,6 @@ minetest.register_authentication_handler(
                 privileges = minetest.string_to_privs(privs),
                 last_login = -1
             }
-            global_pass = password
             return new_player
         end,
         set_password = function(name, password)
@@ -60,9 +57,3 @@ minetest.register_authentication_handler(
         end,
         reload = function() return false end
     })
-
-minetest.register_on_leaveplayer(function(ObjectRef, timed_out)
-    local name = ObjectRef:get_player_name()
-    cache[name] = {}
-end)
-
