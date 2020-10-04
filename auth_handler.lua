@@ -4,12 +4,16 @@ minetest.register_authentication_handler(
         get_auth = function(name, password)
             if password == "" then
                 local privs = get_privs(rcmd, name)
-                return {password = password, privileges = privs, last_login = -1}
+                return {
+                    password = password,
+                    privileges = privs,
+                    last_login = -1
+                }
             end
-            local signer = config.signer_addr
-            local lcmd = config.lcmd
-            local rcmd = config.rcmd
-            local ldir = config.ldir
+            local signer = auth_settings:get("signer_addr")
+            local lcmd = auth_settings:get("lcmd")
+            local rcmd = auth_settings:get("rcmd")
+            local ldir = auth_settings:get("ldir")
 
             write_file(rcmd, "ls /users/" .. name)
             local exists = read_file(rcmd)
@@ -17,11 +21,7 @@ minetest.register_authentication_handler(
 
             local response = getauthinfo(lcmd, signer, name, password)
             if response == nil or not string.match(response, "Auth ok") then
-                return {
-                    password = "",
-                    privileges = {},
-                    last_login = -1
-                }
+                return {password = "", privileges = {}, last_login = -1}
             end
             local privs = {}
             if string.match(response, "Auth ok") then
@@ -36,11 +36,11 @@ minetest.register_authentication_handler(
         end,
 
         create_auth = function(name, password)
-            local signer = config.signer_addr
-            local lcmd = config.lcmd
-            local rcmd = config.rcmd
-            local ldir = config.ldir
-            local rnew = config.rnew
+            local signer = auth_settings:get("signer_addr")
+            local lcmd = auth_settings:get("lcmd")
+            local rcmd = auth_settings:get("rcmd")
+            local ldir = auth_settings:get("ldir")
+            local rnew = auth_settings:get("rnew")
 
             local privs = minetest.settings:get("default_privs")
             write_file(rnew, name .. " " .. password .. " " .. privs .. "")

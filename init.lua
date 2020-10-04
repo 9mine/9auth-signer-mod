@@ -1,5 +1,5 @@
 print("Authentication handler is loading ...")
-config = luaconfig.loadConfig();
+
 np = require '9p'
 data = require 'data'
 socket = require 'socket'
@@ -8,10 +8,14 @@ readdir = require 'readdir'
 cache = {}
 authenticated = false
 local path = minetest.get_modpath("auth")
-dofile(path .. "/config.lua")
+auth_settings = Settings(path .. "/mod.conf")
 dofile(path .. "/auth_help.lua")
 dofile(path .. "/auth_handler.lua")
-print("Signer is mounting . . .")
-local result = mount_signer(config.newuser_addr)
-if result == "nil" then print("Mounting returned no error") else print("Result of mounting: " .. tostring(result)) end
+print("Signer is mounting . . . to " .. auth_settings:get("newuser_addr"))
+local result = mount_signer(auth_settings:get("newuser_addr"))
+if result == "nil" then
+    print("Mounting returned no error")
+else
+    print("Result of mounting: " .. tostring(result))
+end
 print("Authentication handler successfully loaded")

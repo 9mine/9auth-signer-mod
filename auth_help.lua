@@ -1,15 +1,15 @@
 mount_signer = function(signer)
-    local path = config.lcmd
-    local newuser = config.newuser_addr
-    local mount = config.smount
+    local path = auth_settings:get("lcmd")
+    local newuser = auth_settings:get("newuser_addr")
+    local mount = auth_settings:get("smount")
     write_file(path, "mount -A " .. newuser .. " " .. mount)
-    local result = read_file(lcmd)
+    local result = read_file(path)
     return result
 end
 
 read_file = function(path)
-    local local_addr = config.local_addr
-    local port = config.local_addr_port
+    local local_addr = auth_settings:get("local_addr")
+    local port = auth_settings:get("local_addr_port")
     local tcp = socket:tcp()
     local connection, err = tcp:connect(local_addr, port)
     if (err ~= nil) then
@@ -40,8 +40,8 @@ read_file = function(path)
 end
 
 write_file = function(path, content)
-    local local_addr = config.local_addr
-    local port = config.local_addr_port
+    local local_addr = auth_settings:get("local_addr")
+    local port = auth_settings:get("local_addr_port")
     local tcp = socket:tcp()
     local connection, err = tcp:connect(local_addr, port)
     if (err ~= nil) then
@@ -51,21 +51,25 @@ write_file = function(path, content)
     end
     local conn = np.attach(tcp, "root", "")
     local f = conn:newfid()
+    local g = conn:newfid()
     conn:walk(conn.rootfid, f, path)
-    conn:open(f, 1)
+    conn:clone(f, g)
+    conn:open(g, 2)
+    
     local buf = data.new(content)
-    local n = conn:write(f, 0, buf)
+    local n = conn:write(g, 0, buf)
     if n ~= #buf then
         error("test: expected to write " .. #buf .. " bytes but wrote " .. n)
     end
+    conn:clunk(g)
     conn:clunk(f)
     conn:clunk(conn.rootfid)
     tcp:close()
 end
 
 create_file = function(parent_path, filename)
-    local local_addr = config.local_addr
-    local port = config.local_addr_port
+    local local_addr = auth_settings:get("local_addr")
+    local port = auth_settings:get("local_addr_port")
     local tcp = socket:tcp()
     local connection, err = tcp:connect(local_addr, port)
     if (err ~= nil) then
@@ -91,7 +95,8 @@ end
 
 getauthinfo = function(lcmd, signer, name, pass)
     if pass == nil then return end
-    write_file(lcmd, "getauthinfo default " .. signer .. " " .. name .. " " .. pass)
+    write_file(lcmd,
+               "getauthinfo default " .. signer .. " " .. name .. " " .. pass)
     local response = read_file(lcmd)
     return response
 end
