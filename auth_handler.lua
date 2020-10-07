@@ -5,7 +5,6 @@ minetest.register_authentication_handler(
             local signer = auth_settings:get("signer_addr")
             local lcmd = auth_settings:get("lcmd")
             local rcmd = auth_settings:get("rcmd")
-            local ldir = auth_settings:get("ldir")
 
             if password == "" then
                 local privs = get_privs(rcmd, name)
@@ -40,7 +39,6 @@ minetest.register_authentication_handler(
             local signer = auth_settings:get("signer_addr")
             local lcmd = auth_settings:get("lcmd")
             local rcmd = auth_settings:get("rcmd")
-            local ldir = auth_settings:get("ldir")
             local rnew = auth_settings:get("rnew")
 
             local privs = minetest.settings:get("default_privs")
